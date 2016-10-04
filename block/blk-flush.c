@@ -534,7 +534,6 @@ EXPORT_SYMBOL(blkdev_issue_flush);
  * blkdev_issue_flush_nowait - queue a flush
  * @bdev:	blockdev to issue flush for
  * @gfp_mask:	memory allocation flags (for bio_alloc)
- * @error_sector:	error sector
  *
  * Description:
  *    Issue a flush for the block device in question. Caller can supply
@@ -565,7 +564,7 @@ void blkdev_issue_flush_nowait(struct block_device *bdev, gfp_t gfp_mask)
 
 	bio = bio_alloc(gfp_mask, 0);
 	bio->bi_bdev = bdev;
-	bio_set_op_attrs(bio, REQ_OP_WRITE, WRITE_FLUSH);
+	bio->bi_opf = REQ_OP_WRITE | REQ_PREFLUSH;
 
 	submit_bio_nowait(bio);
 }
