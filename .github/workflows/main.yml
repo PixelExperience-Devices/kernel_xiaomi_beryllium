@@ -1,37 +1,21 @@
-name: Build on push master
+name: Github workflow kernel build
 
 on:
   push:
-    branches: [ thirteen , dev]
+    branches: [ thirteen , dev-gh ]
+
+env:
+    BOT_API_KEY: ${{ secrets.BOT_API_KEY }}
+    CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout kernel source
-      uses: actions/checkout@v2
-
-    - name: Checkout zipper
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
-        repository: sajidshahriar72543/AnyKernel3
-        path: zipper
+        fetch-depth: 1
 
-    - name: Android kernel build
-      uses: lemniskett/android-kernel-actions@master
-      id: build
-      env:
-        NAME: perf+
-      with:
-        arch: arm64
-        compiler: proton-clang/master
-        defconfig: beryllium_defconfig
-        image: Image.gz-dtb
-
-    - name: Release build
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.CHANNEL_ID }}
-        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        message: Kernel is built!, took ${{ steps.build.outputs.elapsed_time }} seconds.
-        document: ${{ steps.build.outputs.outfile }}
+    - name: Setup kernel source and build
+      run: bash kernel_setup.sh
