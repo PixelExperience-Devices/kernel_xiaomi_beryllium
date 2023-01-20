@@ -128,3 +128,6 @@ Android.bp
 # JSON compilation database for LSP
 #
 compile_commands.json
+
+# out dir
+out/
