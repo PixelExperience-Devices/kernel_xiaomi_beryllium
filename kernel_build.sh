@@ -2,21 +2,18 @@
 # Copyright (C) 2020 KenHV
 # Copyright (C) 2020 Starlight
 # Copyright (C) 2021 CloudedQuartz
-#
+# Copyright (C) 2023 PaperBoy
 
 # Config
 DEVICE="beryllium"
-#DEVICE2="polaris"
-#DEVICE3="dipper"
 DEFCONFIG="${DEVICE}_defconfig"
-#DEFCONFIG2="${DEVICE2}_defconfig"
-#DEFCONFIG3="${DEVICE3}_defconfig"
 LOG="$HOME/log.log"
 
 # Export arch and subarch
 ARCH="arm64"
 SUBARCH="arm64"
 export ARCH SUBARCH
+export KBUILD_BUILD_USER="PaperBoy"
 
 KERNEL_IMG=$KERNEL_DIR/out/arch/$ARCH/boot/Image.gz-dtb
 
@@ -25,6 +22,13 @@ TG_BOT_TOKEN="$BOT_API_KEY"
 # End config
 
 # Function definitions
+
+# Status message function
+msg() {
+	echo
+	echo -e "\e[1;32m$*\e[0m"
+	echo
+}
 
 # tg_sendinfo - sends text through telegram
 tg_sendinfo() {
@@ -68,6 +72,7 @@ build_config() {
 # only use after runing build_setup()
 build_kernel() {
 
+    msg "|| Start Building ||"
     make O=out $DEFCONFIG -j$(nproc --all)
     BUILD_START=$(date +"%s")
 	echo $TC_DIR
@@ -87,17 +92,22 @@ build_kernel() {
     DIFF=$((BUILD_END - BUILD_START))
 }
 
+LINUXVER=$(make kernelversion)
+KBUILD_COMPILER_STRING=$("$TC_DIR"/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+
 # build_end - creates and sends zip
 build_end() {
 
 	if ! [ -a "$KERNEL_IMG" ]; then
-        echo -e "\n> Build failed, sending logs to Telegram."
+        echo -e "\n"
+        msg "|| Build Failed, Sending logs to telegram ||"
         tg_failed
         tg_buildtime
         exit 1
     fi
 
-    echo -e "\n> Build successful! generating flashable zip..."
+    echo -e "\n"
+    msg "|| Build Completed ||"
 	cd "$AK_DIR" || echo -e "\nAnykernel directory ($AK_DIR) does not exist" || exit 1
 	git clean -fd
 	mv "$KERNEL_IMG" "$AK_DIR"/zImage
@@ -106,7 +116,7 @@ build_end() {
 
 	ZIP_NAME="$ZIP_NAME.zip"
 
-	tg_pushzip "$ZIP_NAME" "Time taken: <code>$((DIFF / 60))m $((DIFF % 60))s</code>"
+    tg_pushzip "$ZIP_NAME" "Time taken: <code>$((DIFF / 60))m $((DIFF % 60))s</code>"
 	echo -e "\n> Sent zip through Telegram.\n> File: $ZIP_NAME"
 }
 
@@ -115,34 +125,33 @@ build_end() {
 COMMIT=$(git log --pretty=format:"%s" -1)
 COMMIT_SHA=$(git rev-parse --short HEAD)
 KERNEL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+DISTRO=$(source /etc/os-release && echo "${NAME}")
+PROCS=$(nproc --all)
 
 CAPTION=$(echo -e \
-"HEAD: <code>$COMMIT_SHA: </code><code>$COMMIT</code>
-Branch: <code>$KERNEL_BRANCH</code>")
+"\n\nHEAD: <code>$COMMIT_SHA: </code><code>$COMMIT</code>
+\n\nBranch: <code>$KERNEL_BRANCH</code>
+\n\nLinux Version: <code>$LINUXVER</code>
+\n\nCompiler info: <code>$KBUILD_COMPILER_STRING</code>
+\n\nDocker OS: <code>$DISTRO</code>
+\n\nHost Core Count : <code>$PROCS</code>")
 
-tg_sendinfo "-- Build Triggered --
+tg_sendinfo "-- Gayming Karnul Build Triggered --
 $CAPTION"
 
-# Build device 1
+# Build for device 1
+echo -e "\n"
+msg "|| Building for Beryllium ||"
 build_setup $DEFCONFIG
 build_kernel
 build_end $DEVICE
 
-# Build device 2
-#build_setup $DEFCONFIG2
-#build_kernel
-#build_end $DEVICE2
-
-# Build device 1
-#build_setup $DEFCONFIG3
-#build_kernel
-#build_end $DEVICE3
-
 # Build old touch fw version for device 1
-# Build device 1
 build_setup
 git apply old_touch_fw.patch
 build_config $DEFCONFIG
 build_kernel
 build_end ${DEVICE}_old_touch_fw
 
+echo -e "\n"
+msg "|| All jobs done. Proceeding to post compilation works.. ||"
