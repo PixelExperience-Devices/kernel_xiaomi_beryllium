@@ -1,0 +1,83 @@
+From 0c30f59d5d1f5c69a1e1d0c2c0c7a9933dd8dcc0 Mon Sep 17 00:00:00 2001
+From: sajidshahriar <sazidshahriar39@gmail.com>
+Date: Sun, 26 Feb 2023 15:00:43 +0000
+Subject: [PATCH] Revert "arch/arm64: dts: mi845: drop fstab entries"
+
+This reverts commit 5bebda977e677d2938d14a531dcd1065731072d6.
+---
+ arch/arm64/boot/dts/qcom/perseus-p0.dtsi           | 10 ++++++++++
+ arch/arm64/boot/dts/qcom/sdm845-xiaomi-common.dtsi | 14 ++++++++++++++
+ arch/arm64/boot/dts/qcom/sdm845.dtsi               | 12 ++++++++++++
+ 3 files changed, 36 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/perseus-p0.dtsi b/arch/arm64/boot/dts/qcom/perseus-p0.dtsi
+index 2d024550a3cc4..1048f34cb3be5 100644
+--- a/arch/arm64/boot/dts/qcom/perseus-p0.dtsi
++++ b/arch/arm64/boot/dts/qcom/perseus-p0.dtsi
+@@ -987,5 +987,15 @@
+ 			compatible = "android,vbmeta";
+ 			parts = "vbmeta,boot,system,vendor,dtbo,recovery";
+ 		};
++
++		fstab {
++			compatible = "android,fstab";
++			system {
++				status = "disabled";
++			};
++			vendor {
++				fsmgr_flags = "wait,avb";
++			};
++		};
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-common.dtsi
+index 1a7df87e04b6d..c65939cd57797 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-common.dtsi
+@@ -30,6 +30,20 @@
+ &firmware {
+ 	android {
+ 		/delete-node/ vbmeta;
++
++		fstab {
++			system {
++				compatible = "android,system";
++				dev = "/dev/block/platform/soc/1d84000.ufshc/by-name/system";
++				type = "ext4";
++				mnt_flags = "ro,barrier=1,discard";
++				fsmgr_flags = "wait";
++				status = "ok";
++			};
++			vendor {
++				fsmgr_flags = "wait";
++			};
++		};
+ 	};
+ };
+ 
+diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+index 157c5261d9106..dc082819617bd 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+@@ -500,6 +500,18 @@
+ 				compatible = "android,vbmeta";
+ 				parts = "vbmeta,boot,system,vendor,dtbo";
+ 			};
++
++			fstab {
++				compatible = "android,fstab";
++				vendor {
++					compatible = "android,vendor";
++					dev = "/dev/block/platform/soc/1d84000.ufshc/by-name/vendor";
++					type = "ext4";
++					mnt_flags = "ro,barrier=1,discard";
++					fsmgr_flags = "wait,slotselect,avb";
++					status = "ok";
++				};
++			};
+ 		};
+ 	};
+ 
+-- 
+2.37.3
+

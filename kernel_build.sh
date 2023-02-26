@@ -153,5 +153,12 @@ build_config $DEFCONFIG
 build_kernel
 build_end ${DEVICE}_old_touch_fw
 
+# Build NON SE version for device 1
+build_setup
+git apply non_se.patch
+build_config $DEFCONFIG
+build_kernel
+build_end ${DEVICE}_non_SE
+
 echo -e "\n"
 msg "|| All jobs done. Proceeding to post compilation works.. ||"
