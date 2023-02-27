@@ -160,5 +160,13 @@ build_config $DEFCONFIG
 build_kernel
 build_end ${DEVICE}_non_SE
 
+# Build MIUI NSE version for device 1
+build_setup
+git apply non_se.patch
+git apply miui_rom.patch
+build_config $DEFCONFIG
+build_kernel
+build_end ${DEVICE}_miui_version_NSE
+
 echo -e "\n"
 msg "|| All jobs done. Proceeding to post compilation works.. ||"
