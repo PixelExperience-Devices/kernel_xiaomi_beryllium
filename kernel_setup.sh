@@ -8,7 +8,7 @@
 
 # Config
 CURRENT_DIR="$(pwd)"
-KERNELNAME="perf+"
+KERNELNAME="perf+[PE]"
 KERNEL_DIR="$CURRENT_DIR"
 AK_REPO="https://github.com/sajidshahriar72543/AnyKernel3"
 AK_DIR="$HOME/AnyKernel3"
@@ -24,9 +24,9 @@ msg() {
 
 # clone_tc - clones proton clang to TC_DIR
 clone_tc() {
-	msg "|| Cloning Playground Clang ||"
-	# git clone --depth=1 https://github.com/kdrag0n/proton-clang.git $TC_DIR
-	git clone -b 17 --depth=1 https://gitlab.com/PixelOS-Devices/playgroundtc.git $TC_DIR
+	msg "|| Cloning Proton Clang ||"
+	git clone --depth=1 https://github.com/kdrag0n/proton-clang.git $TC_DIR
+	# git clone -b 17 --depth=1 https://gitlab.com/PixelOS-Devices/playgroundtc.git $TC_DIR
 
 }
 
