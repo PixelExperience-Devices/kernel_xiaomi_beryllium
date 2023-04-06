@@ -10,7 +10,7 @@
 CURRENT_DIR="$(pwd)"
 KERNELNAME="perf+"
 KERNEL_DIR="$CURRENT_DIR"
-AK_REPO="https://github.com/sajidshahriar72543/AnyKernel3"
+AK_REPO="https://github.com/sajidshahriar72543/AnyKernel3-1"
 AK_DIR="$HOME/AnyKernel3"
 TC_DIR="$HOME/pg-clang"
 # End Config
